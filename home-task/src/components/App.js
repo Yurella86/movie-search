@@ -111,7 +111,6 @@ function App() {
             <Item
               key={el.id}
               loading={loading}
-              key={el}
               title={el.title}
               date={el.release_date}
               genre={el.genre_ids}
