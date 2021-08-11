@@ -1,0 +1,31 @@
+.item {
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+    border: 2px solid black;
+    margin-bottom: 10px;
+    background-color: rgb(245, 245, 245);
+
+    .item-img {
+        width: 80px;
+        height: 80px;
+        border: 2px solid black;
+    }
+    .item-description {
+        margin-left: 20px;
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .year {
+            margin: 5px 0;
+
+            font-size: 14px;
+        }
+        .genre {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    }
+}
