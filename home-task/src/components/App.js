@@ -12,7 +12,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [genreArrayApi, setGenreArrayApi] = useState([])
   const [selectFilter, setSelectFilter] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(2)
   const [postPage, setPostPage] = useState(10)
   const [options, setOptions] = useState([
     { value: 'Thriller', label: 'Thriller' },
@@ -23,18 +23,20 @@ function App() {
     { value: 'Horror', label: 'Horror' },
   ])
 
+  const lastFilmIndex = currentPage * postPage
+  const firstFilmIndex = lastFilmIndex - postPage
+  const currentFilms = array.slice(firstFilmIndex, lastFilmIndex)
+
   async function getApi() {
     try {
       setLoading(true);
-      const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate`)
+      const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${currentPage}&with_watch_monetization_types=flatrate`)
       const obj = await response.json()
       setArray(obj.results);
       setLoading(false);
     } catch (error) {
       console.log(error);
-
     }
-
   }
 
   async function getGenreApi() {
@@ -65,6 +67,8 @@ function App() {
   function handleChange(e) {
     setSelectFilter(e);
   }
+
+  const paginate = pageNumber => setCurrentPage(pageNumber)
 
   useEffect(() => {
     getGenreApi()
@@ -97,7 +101,7 @@ function App() {
       <div className="content">
 
         {selectFilter ?
-          array.filter((el) => {
+          currentFilms.filter((el) => {
             let filteredGenres = getGenres(el.genre_ids)
             el.genre_ids = filteredGenres
             for (let index = 0; index < selectFilter.length; index++) {
@@ -116,7 +120,7 @@ function App() {
               genre={el.genre_ids}
               picture={el.backdrop_path}
             />) :
-          array.map(el =>
+          currentFilms.map(el =>
             <Item
               key={el.id}
               loading={loading}
@@ -128,7 +132,10 @@ function App() {
       </div>
 
       <div className="pagination">
-        <Pagination />
+        <Pagination
+          filmsPerPage={postPage}
+          totalFilms={array.length}
+          paginate={paginate} />
       </div>
     </div>
   );
