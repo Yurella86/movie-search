@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Route, Router, Switch } from 'react-router-dom';
 import Select from 'react-select';
 import './App.scss';
 import Item from './item/Item';
@@ -11,10 +12,11 @@ function App() {
   const [array, setArray] = useState([])
   const [loading, setLoading] = useState(false)
   const [genreArrayApi, setGenreArrayApi] = useState([])
-  const [selectFilter, setSelectFilter] = useState(null)
-  const [currentPage, setCurrentPage] = useState(2)
-  const [postPage, setPostPage] = useState(10)
-  const [options, setOptions] = useState([
+  const [selectFilter, setSelectFilter] = useState()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalFilms, setTotalFilms] = useState(1)
+  const [postPageFilms] = useState(10)
+  const [optionsFilter] = useState([
     { value: 'Thriller', label: 'Thriller' },
     { value: 'Action', label: 'Action' },
     { value: 'Comedy', label: 'Comedy' },
@@ -23,15 +25,31 @@ function App() {
     { value: 'Horror', label: 'Horror' },
   ])
 
-  const lastFilmIndex = currentPage * postPage
-  const firstFilmIndex = lastFilmIndex - postPage
-  const currentFilms = array.slice(firstFilmIndex, lastFilmIndex)
+  function arrayTenFilms() {
+    const lastFilmIndex = currentPage * postPageFilms
+    const firstFilmIndex = lastFilmIndex - postPageFilms
+    const currentFilms = array.slice(firstFilmIndex, lastFilmIndex)
+    return currentFilms
+  }
 
-  async function getApi() {
+  function filterArray(el) {
+    let filteredGenres = getChangeGenres(el.genre_ids)
+    el.genre_ids = filteredGenres
+    for (let index = 0; index < selectFilter.length; index++) {
+      const element = selectFilter[index].value;
+      const result = el.genre_ids.some((x) => x === element)
+      if (result) {
+        return el
+      }
+    }
+  }
+
+  async function getApi(p) {
     try {
       setLoading(true);
-      const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${currentPage}&with_watch_monetization_types=flatrate`)
+      const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${p}&with_watch_monetization_types=flatrate`)
       const obj = await response.json()
+      setTotalFilms(obj.total_results)
       setArray(obj.results);
       setLoading(false);
     } catch (error) {
@@ -49,10 +67,9 @@ function App() {
     } catch (error) {
       console.log(error);
     }
-
   }
 
-  function getGenres(arr) {
+  function getChangeGenres(arr) {
     const normalGenres = [];
     for (let num = 0; num < arr.length; num++) {
       for (let index = 0; index < genreArrayApi.length; index++) {
@@ -64,35 +81,43 @@ function App() {
     return normalGenres
   }
 
-  function handleChange(e) {
+  function getItems() {
+    return array.map(el =>
+      <Item
+        key={el.id}
+        title={el.title}
+        date={el.release_date}
+        genre={getChangeGenres(el.genre_ids)}
+        picture={el.backdrop_path}
+      />)
+  }
+
+  function handleChangeFilter(e) {
     setSelectFilter(e);
   }
 
-  const paginate = pageNumber => setCurrentPage(pageNumber)
-
   useEffect(() => {
     getGenreApi()
-    getApi()
   }, [])
 
   useEffect(() => {
-
-  }, [setSelectFilter])
+    getApi(currentPage)
+  }, [currentPage, selectFilter]);
 
   if (loading) {
     return <h3>Loading....</h3>
   }
-  return (
+  return (<BrowserRouter>
     <div className="wrapper">
 
       <header>
         <hi>movies</hi>
         <div className="search">
           <Select
-            onChange={handleChange}
+            onChange={handleChangeFilter}
             name="genre"
             isMulti
-            options={options}
+            options={optionsFilter}
           />
 
         </div>
@@ -100,45 +125,42 @@ function App() {
 
       <div className="content">
 
-        {selectFilter ?
-          currentFilms.filter((el) => {
-            let filteredGenres = getGenres(el.genre_ids)
-            el.genre_ids = filteredGenres
-            for (let index = 0; index < selectFilter.length; index++) {
-              const element = selectFilter[index].value;
-              const result = el.genre_ids.some((x) => x === element)
-              if (result) {
-                return el
-              }
-            }
-          }).map(el =>
-            <Item
-              key={el.id}
-              loading={loading}
-              title={el.title}
-              date={el.release_date}
-              genre={el.genre_ids}
-              picture={el.backdrop_path}
-            />) :
-          currentFilms.map(el =>
-            <Item
-              key={el.id}
-              loading={loading}
-              title={el.title}
-              date={el.release_date}
-              genre={getGenres(el.genre_ids)}
-              picture={el.backdrop_path}
-            />)}
+        <Switch>
+          <Route path={`/page_${currentPage}`}>
+            {getItems()}
+          </Route>
+        </Switch>
+
       </div>
 
       <div className="pagination">
         <Pagination
-          filmsPerPage={postPage}
-          totalFilms={array.length}
-          paginate={paginate} />
+          filmsPerPage={postPageFilms}
+          totalFilms={totalFilms}
+          paginate={(pageNumberApi) => setCurrentPage(pageNumberApi)} />
       </div>
-    </div>
+    </div >
+  </BrowserRouter>
   );
 }
 
 export default App;
+
+
+//{selectFilter ?
+//  array.filter(el => filterArray(el)).map(el =>
+//    <Item
+//      key={el.id}
+//      title={el.title}
+//      date={el.release_date}
+//      genre={el.genre_ids}
+//      picture={el.backdrop_path}
+//    />) :
+//  array.map(el =>
+//    <Item
+//      key={el.id}
+//      title={el.title}
+//      date={el.release_date}
+//      genre={getChangeGenres(el.genre_ids)}
+//      picture={el.backdrop_path}
+//    />)}

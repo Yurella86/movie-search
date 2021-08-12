@@ -24,14 +24,17 @@
             background-color: rgb(245, 245, 245);
             color: rgb(0, 134, 243);
             margin: 1px;
+            .link {
+                color: rgb(0, 134, 243);
+                text-decoration: none;
+            }
             &:hover {
                 cursor: pointer;
                 color: white;
                 background-color: rgb(78, 78, 78);
-            }
-            &:active {
-                transform: scale(0.98, 0.9);
-                box-shadow: inset 0 0 1px 1px rgb(255, 255, 255);
+                .link {
+                    color: white;
+                }
             }
         }
 

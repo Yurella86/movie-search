@@ -10,6 +10,14 @@
         width: 80px;
         height: 80px;
         border: 2px solid black;
+        position: relative;
+        img {
+            position: absolute;
+            width: inherit;
+            height: inherit;
+            object-fit: cover;
+            object-position: center;
+        }
     }
     .item-description {
         margin-left: 20px;
