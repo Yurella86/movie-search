@@ -1,0 +1,16 @@
+h3 {
+    width: auto;
+    display: block;
+    margin: 100px auto 150px;
+    text-align: center;
+    font-size: 48px;
+}
+
+.content {
+    margin: 10px;
+    .result-found {
+        width: max-content;
+        margin: 50px auto;
+        font-size: 30px;
+    }
+}

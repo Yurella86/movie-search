@@ -1,52 +1,28 @@
-import { useState } from "react"
-import { BrowserRouter as Router, Link } from "react-router-dom";
-import "./Pagination.scss"
+import { useEffect } from "react";
+import ReactPaginate from "react-paginate";
+import "./Pagination.scss";
 
-function Pagination({ filmsPerPage, totalFilms, paginate }) {
+function Pagination({ totalPage, callbackNumber }) {
 
-    const [pageNumberApi, setPageNumberApi] = useState(1)
-    const pageNumber = []
-
-    for (let i = 1; i <= Math.ceil(totalFilms / filmsPerPage); i++) {
-        pageNumber.push(i)
-    };
-
-    function changePage(pageNumberApi) {
-        paginate(pageNumberApi)
-    };
+    function handleChangePage({ selected }) {
+        const showNumberPage = selected + 1
+        callbackNumber(showNumberPage)
+    }
 
     return (
-        <Router>
-            <div className="wrapper-pagination">
-                <ul className="numbers">
-
-                    <li
-                        className="previous"
-                        onClick={() => {
-                            pageNumberApi > 1 ? setPageNumberApi(pageNumberApi - 1) : setPageNumberApi(pageNumberApi)
-                        }}>Previous
-                    </li>
-
-                    {pageNumber.map(number => (
-                        <li
-                            key={number}
-                            onClick={() => {
-                                setPageNumberApi(number)
-                                changePage(number)
-                            }} >
-                            <Link to={`/page_${number}`} className="link">
-                                {number}
-                            </Link>
-                        </li>
-                    ))}
-
-                    <li className="next" onClick={() => {
-                        pageNumberApi < totalFilms ? setPageNumberApi(pageNumberApi + 1) : setPageNumberApi(pageNumberApi)
-                    }}>Next</li>
-
-                </ul>
-            </div >
-        </Router>
+        <div>
+            <ReactPaginate
+                previousLabel={"Previous"}
+                nextLabel={"Next"}
+                pageCount={totalPage}
+                onPageChange={handleChangePage}
+                containerClassName={"paginationsBttns"}
+                previousLinkClassName={"previosBttn"}
+                nextLinkClassName={"nextBttn"}
+                disabledClassName={"pagination-disabled"}
+                activeClassName={"acttive"}
+            />
+        </div>
     )
 }
 
