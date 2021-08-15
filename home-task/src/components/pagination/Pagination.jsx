@@ -1,15 +1,27 @@
-import "./Pagination.scss"
+import { useEffect } from "react";
+import ReactPaginate from "react-paginate";
+import "./Pagination.scss";
 
-function Pagination() {
+function Pagination({ totalPage, callbackNumber }) {
+
+    function handleChangePage({ selected }) {
+        const showNumberPage = selected + 1
+        callbackNumber(showNumberPage)
+    }
+
     return (
-        <div className="wrapper-pagination">
-            <ul className="numbers">
-                <li className="previous">Previous</li>
-                <li>1</li>
-                <li>2</li>
-                <li>3</li>
-                <li className="next">Next</li>
-            </ul>
+        <div>
+            <ReactPaginate
+                previousLabel={"Previous"}
+                nextLabel={"Next"}
+                pageCount={totalPage}
+                onPageChange={handleChangePage}
+                containerClassName={"paginationsBttns"}
+                previousLinkClassName={"previosBttn"}
+                nextLinkClassName={"nextBttn"}
+                disabledClassName={"pagination-disabled"}
+                activeClassName={"acttive"}
+            />
         </div>
     )
 }
